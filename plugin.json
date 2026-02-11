@@ -1,0 +1,19 @@
+{
+  "name": "Deckdeals",
+  "author": "Draftdeck",
+  "flags": [
+    "root"
+  ],
+  "publish": {
+    "tags": [
+      "IsThereAnyDeal",
+      "PriceHistory",
+      "Deals"
+    ],
+    "description": "Price history and deal tracking for Steam Deck store pages, powered by IsThereAnyDeal.",
+    "resourceLink": "",
+    "image": ""
+  },
+  "version": "1.0.0",
+  "main": "main.py"
+}

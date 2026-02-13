@@ -10,6 +10,7 @@ import { injectStore } from "./patches/StoreInjector";
 import { Cache } from "./utils/Cache";
 import { Settings } from "./utils/Settings";
 import { priceService } from "./service/PriceService";
+import { exchangeRateService } from "./service/ExchangeRateService";
 
 
 export default definePlugin((serverApi: ServerAPI) => {
@@ -18,6 +19,7 @@ export default definePlugin((serverApi: ServerAPI) => {
   Cache.init()
   Settings.init(serverApi)
   priceService.init(serverApi)
+  exchangeRateService.init(serverApi)
 
   // injectStore returns a teardown function
   const stopStoreInjector = injectStore(serverApi)

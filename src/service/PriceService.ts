@@ -5,7 +5,7 @@ import { SECRETS } from "../utils/Secrets";
 
 export interface PriceData {
     lowest: { amount: number; currency: string; date: string; store: string; storeId: number };
-    history: { amount: number; date: string; store?: string }[];
+    history: { amount: number; currency: string; date: string; store?: string; storeId?: number }[];
     urls: { steamdb: string; itad: string };
 }
 
@@ -63,7 +63,8 @@ class PriceService {
             const providers = await SETTINGS.load(Setting.PROVIDERS) || ["itad"];
             const storesArr = await SETTINGS.load(Setting.STORES) || [61];
             const validStores = Array.isArray(storesArr) ? storesArr : [61];
-            const shopsParam = validStores.length > 0 ? validStores.join(",") : "61";
+            const storesWithSteam = validStores.includes(61) ? validStores : [...validStores, 61];
+            const shopsParam = storesWithSteam.length > 0 ? storesWithSteam.join(",") : "61";
 
             if (!providers.includes("itad")) {
                 // For now we only support ITAD, if not selected, we could return null or fallback
@@ -122,16 +123,17 @@ class PriceService {
             // [ { timestamp, shop: { id, name }, deal: { price: { amount, currency }, regular: {...}, cut } }, ... ]
             let lowestPrice = Infinity;
             let lowestEntry: any = null;
-            const historyPoints: { amount: number; date: string; store: string }[] = [];
+            const historyPoints: { amount: number; currency: string; date: string; store: string; storeId: number }[] = [];
 
             for (const entry of historyData) {
                 const amount = entry.deal?.price?.amount;
+                const currency = entry.deal?.price?.currency || "USD";
                 const date = entry.timestamp;
                 const storeId = entry.shop?.id || 0;
                 const storeName = STORES.find(s => s.id === storeId)?.title || entry.shop?.name || "Unknown";
 
                 if (typeof amount === 'number' && date) {
-                    historyPoints.push({ amount, date, store: storeName });
+                    historyPoints.push({ amount, currency, date, store: storeName, storeId });
 
                     if (amount < lowestPrice) {
                         lowestPrice = amount;

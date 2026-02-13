@@ -12,7 +12,6 @@ export const STORES: Store[] = [
     { id: 52, title: "EA Store" },
     { id: 16, title: "Epic Game Store" },
     { id: 6, title: "Fanatical" },
-    { id: 17, title: "FireFlower" },
     { id: 20, title: "GameBillet" },
     { id: 24, title: "GamersGate" },
     { id: 25, title: "Gamesload" },
@@ -34,6 +33,5 @@ export const STORES: Store[] = [
     { id: 70, title: "Playsum" },
     { id: 61, title: "Steam" },
     { id: 62, title: "Ubisoft Store" },
-    { id: 64, title: "WinGameStore" },
-    { id: 72, title: "ZOOM Platform" }
+    { id: 64, title: "WinGameStore" }
 ].sort((a, b) => a.title.localeCompare(b.title));

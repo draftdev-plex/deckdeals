@@ -5,6 +5,7 @@ import { PROVIDERS } from '../utils/Providers';
 import { useState } from 'react';
 import { FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import { t, getAvailableLocales } from '../l10n';
+import { CURRENCY_METADATA } from '../utils/CurrencyMeta';
 
 const DeckyMenuOption = () => {
   const {
@@ -121,6 +122,72 @@ const DeckyMenuOption = () => {
   const nativeCurrency = getNativeCurrency(country);
   const showWarning = nativeCurrency !== currentCurrency;
   const currentCountryLabel = countryOptions.find(o => o.data === country)?.label?.split(' (')[0] || country;
+
+  const getStoreCurrencyInfo = (storeTitle: string) => {
+    const regionCurrencies = CURRENCY_METADATA[country]?.stores?.[storeTitle];
+    if (!Array.isArray(regionCurrencies) || regionCurrencies.length === 0) {
+      return { currencies: [] as string[], status: 'unknown' as const };
+    }
+
+    const currencies = [...new Set(regionCurrencies.filter(Boolean))];
+    if (currencies.length === 0) {
+      return { currencies: [] as string[], status: 'unknown' as const };
+    }
+
+    const includesNative = currencies.includes(nativeCurrency);
+    if (includesNative && currencies.length === 1) {
+      return { currencies, status: 'native' as const };
+    }
+    if (includesNative) {
+      return { currencies, status: 'mixed' as const };
+    }
+    return { currencies, status: 'nonNative' as const };
+  };
+
+  const storesByCurrency = selectedStoreNames.reduce((acc, name) => {
+    const info = getStoreCurrencyInfo(name);
+    // Only include stores with known currency data
+    if (info.status !== 'unknown') {
+      info.currencies.forEach(curr => {
+        if (!acc[curr]) acc[curr] = [];
+        if (!acc[curr].includes(name)) acc[curr].push(name);
+      });
+    }
+    return acc;
+  }, {} as Record<string, string[]>);
+
+  // Get ALL stores and their currencies for the current region (for info display)
+  const allStoresCurrencyInfo = STORES.map(store => {
+    const info = getStoreCurrencyInfo(store.title);
+    return {
+      name: store.title,
+      id: store.id,
+      currencies: info.currencies,
+      status: info.status,
+      isSelected: stores.includes(store.id)
+    };
+  }).filter(store => store.status !== 'unknown'); // Only show stores with data
+
+  // Group all stores by currency
+  const allStoresByCurrency = allStoresCurrencyInfo.reduce((acc, store) => {
+    store.currencies.forEach(curr => {
+      if (!acc[curr]) acc[curr] = { selected: [], unselected: [] };
+      if (store.isSelected) {
+        acc[curr].selected.push(store.name);
+      } else {
+        acc[curr].unselected.push(store.name);
+      }
+    });
+    return acc;
+  }, {} as Record<string, { selected: string[], unselected: string[] }>);
+
+  const [expandedCurrencies, setExpandedCurrencies] = useState<Record<string, boolean>>({});
+  const [showAllStores, setShowAllStores] = useState(false);
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
+
+  const toggleCurrencyExpand = (curr: string) => {
+    setExpandedCurrencies(prev => ({ ...prev, [curr]: !prev[curr] }));
+  };
 
   return (
     <>
@@ -268,9 +335,178 @@ const DeckyMenuOption = () => {
           }} />
 
           <div style={{ lineHeight: '1.4' }}>
-            {t("settings.country.currencyHint").replace("{currency}", currentCurrency)}
+            <div style={{ marginBottom: '8px' }}>
+              {t("settings.country.currencyHint").replace("{currency}", currentCurrency)}
+            </div>
+
+            {Object.keys(storesByCurrency).length > 1 && (
+              <>
+                <div style={{ marginBottom: '8px' }}>
+                  <div
+                    onClick={() => setShowHowItWorks(!showHowItWorks)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      cursor: 'pointer',
+                      color: '#67c1f5',
+                      fontSize: '11px',
+                      fontWeight: 600
+                    }}
+                  >
+                    <span style={{ marginRight: '6px', fontSize: '10px' }}>
+                      {showHowItWorks ? <FaChevronDown /> : <FaChevronRight />}
+                    </span>
+                    <span>{t("settings.stores.howItWorksLabel")}</span>
+                  </div>
+                  {showHowItWorks && (
+                    <div style={{
+                      marginTop: '6px',
+                      fontSize: '11px',
+                      lineHeight: '1.45',
+                      color: '#c6d4df'
+                    }}>
+                      <div>{t("settings.stores.howItWorksBody1")}</div>
+                      <div style={{ marginTop: '6px' }}>{t("settings.stores.howItWorksBody2")}</div>
+                      <div style={{ marginTop: '6px' }}>{t("settings.stores.howItWorksBody3")}</div>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ 
+                  fontSize: '11px', 
+                  fontWeight: 600, 
+                  color: '#8f98a0', 
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  Your Selected Stores:
+                </div>
+
+                {Object.entries(storesByCurrency).map(([curr, names]) => (
+                  <div key={curr} style={{ marginTop: '4px' }}>
+                    <div
+                      onClick={() => toggleCurrencyExpand(curr)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'pointer',
+                        color: curr === nativeCurrency ? '#beee11' : '#ffc107',
+                        fontWeight: curr === nativeCurrency ? 400 : 500
+                      }}
+                    >
+                      <span style={{ marginRight: '6px', fontSize: '10px' }}>
+                        {expandedCurrencies[curr] ? <FaChevronDown /> : <FaChevronRight />}
+                      </span>
+                      <span>
+                        {t("settings.country.storesReturning").replace("{currency}", curr)} {names.length}
+                      </span>
+                    </div>
+                    {expandedCurrencies[curr] && (
+                      <div style={{
+                        paddingLeft: '16px',
+                        fontSize: '11px',
+                        color: '#6b7280',
+                        marginTop: '2px'
+                      }}>
+                        {names.join(", ")}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </>
+            )}
+
+            {/* Show all stores button */}
+            <div 
+              onClick={() => setShowAllStores(!showAllStores)}
+              style={{
+                marginTop: '12px',
+                padding: '8px',
+                background: 'rgba(103, 193, 245, 0.05)',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: '1px solid rgba(103, 193, 245, 0.2)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <span style={{ fontSize: '11px', color: '#67c1f5', fontWeight: 500 }}>
+                {showAllStores ? 'Hide' : 'Show'} All Stores for {currentCountryLabel}
+              </span>
+              <span style={{ fontSize: '10px', color: '#67c1f5' }}>
+                {showAllStores ? <FaChevronDown /> : <FaChevronRight />}
+              </span>
+            </div>
+
+            {/* All stores breakdown */}
+            {showAllStores && (
+              <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ 
+                  fontSize: '11px', 
+                  fontWeight: 600, 
+                  color: '#8f98a0', 
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px'
+                }}>
+                  All Available Stores:
+                </div>
+                {Object.entries(allStoresByCurrency)
+                  .sort(([a], [b]) => {
+                    // Sort: native currency first, then alphabetically
+                    if (a === nativeCurrency) return -1;
+                    if (b === nativeCurrency) return 1;
+                    return a.localeCompare(b);
+                  })
+                  .map(([curr, storeGroups]) => {
+                    const totalStores = storeGroups.selected.length + storeGroups.unselected.length;
+                    return (
+                      <div key={curr} style={{ marginTop: '6px' }}>
+                        <div style={{
+                          fontSize: '11px',
+                          color: curr === nativeCurrency ? '#beee11' : '#ffc107',
+                          fontWeight: 500,
+                          marginBottom: '2px'
+                        }}>
+                          {curr} ({totalStores} stores)
+                        </div>
+                        <div style={{
+                          paddingLeft: '12px',
+                          fontSize: '10px',
+                          color: '#6b7280',
+                          lineHeight: '1.5'
+                        }}>
+                          {storeGroups.selected.length > 0 && (
+                            <div style={{ marginBottom: '2px' }}>
+                              <span style={{ color: '#67c1f5' }}>✓ Selected:</span> {storeGroups.selected.join(", ")}
+                            </div>
+                          )}
+                          {storeGroups.unselected.length > 0 && (
+                            <div style={{ opacity: 0.7 }}>
+                              <span>Available:</span> {storeGroups.unselected.join(", ")}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                <div style={{ 
+                  marginTop: '8px', 
+                  fontSize: '10px', 
+                  color: '#6b7280',
+                  fontStyle: 'italic',
+                  textAlign: 'center'
+                }}>
+                  {allStoresCurrencyInfo.length} stores available in {currentCountryLabel}
+                </div>
+              </div>
+            )}
+
             {showWarning && (
-              <div style={{ color: '#ffc107', marginTop: '6px', fontSize: '11px', fontWeight: 500 }}>
+              <div style={{ color: '#ffc107', marginTop: '10px', fontSize: '11px', fontWeight: 500, borderTop: '1px solid rgba(255, 193, 7, 0.2)', paddingTop: '8px' }}>
                 {t("settings.country.nativeCurrencyWarning")
                   .replace("{country}", currentCountryLabel)
                   .replace("{native}", nativeCurrency)
@@ -283,15 +519,30 @@ const DeckyMenuOption = () => {
 
       <PanelSection>
         <PanelSectionRow>
-          <div style={{ fontSize: '12px', color: '#8f98a0', textAlign: 'center', padding: '10px 0' }}>
-            <div style={{ marginBottom: '8px' }}>
+          <div style={{
+            width: '100%',
+            maxWidth: '100%',
+            boxSizing: 'border-box',
+            padding: '8px 10px',
+            borderRadius: '6px',
+            background: 'rgba(255, 255, 255, 0.03)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            lineHeight: '1.4'
+          }}>
+            <div style={{ fontSize: '10px', color: '#8f98a0', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+              {t("attribution.title")}
+            </div>
+            <div style={{ color: '#c6d4df', fontSize: '11px', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {t("attribution.line1")}
             </div>
-            <div style={{ color: '#6b7280', fontSize: '11px' }}>
+            <div style={{ color: '#8f98a0', fontSize: '11px', marginTop: '2px', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {t("attribution.line2")}
             </div>
-            <div style={{ color: '#6b7280', fontSize: '11px' }}>
+            <div style={{ color: '#8f98a0', fontSize: '11px', marginTop: '2px', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
               {t("attribution.line3")}
+            </div>
+            <div style={{ color: '#6b7280', fontSize: '10px', marginTop: '2px', overflowWrap: 'anywhere', wordBreak: 'break-word' }}>
+              {t("attribution.line4")}
             </div>
           </div>
         </PanelSectionRow>

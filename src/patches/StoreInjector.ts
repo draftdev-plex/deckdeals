@@ -1,6 +1,7 @@
 import { ServerAPI, findModuleChild } from "decky-frontend-lib"
 import { CACHE } from "../utils/Cache"
 import { priceService } from "../service/PriceService"
+import { exchangeRateService } from "../service/ExchangeRateService"
 import { SETTINGS, Setting } from "../utils/Settings"
 import { t } from "../l10n"
 
@@ -100,9 +101,9 @@ export const injectStore = (serverApi: ServerAPI) => {
                             <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 <div style="font-size: 10px; color: #8f98a0; margin-bottom: 2px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">${t("store.currentPrice")}</div>
                                 <div style="font-size: 15px; color: #fff; font-weight: bold; margin-bottom: 0px;">
-                                    <span id="dd-current-\` + appId + \`">${t("store.loading")}</span>
+                                    <span id="dd-current-${appId}">${t("store.loading")}</span>
                                 </div>
-                                <div id="dd-current-store-\` + appId + \`" style="font-size: 11px; color: #67c1f5; text-align: center;">
+                                <div id="dd-current-store-${appId}" style="font-size: 11px; color: #67c1f5; text-align: center;">
                                     <!-- Store -->
                                 </div>
                             </div>
@@ -111,31 +112,31 @@ export const injectStore = (serverApi: ServerAPI) => {
                             <div style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                 <div style="font-size: 10px; color: #8f98a0; margin-bottom: 2px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">${t("store.lowestPrice")}</div>
                                 <div style="font-size: 15px; color: #fff; font-weight: bold; margin-bottom: 0px;">
-                                    <span id="dd-lowest-\` + appId + \`">${t("store.loading")}</span>
+                                    <span id="dd-lowest-${appId}">${t("store.loading")}</span>
                                 </div>
-                                <div id="dd-lowest-date-\` + appId + \`" style="font-size: 11px; color: #8f98a0; text-align: center;">
+                                <div id="dd-lowest-date-${appId}" style="font-size: 11px; color: #8f98a0; text-align: center;">
                                     <!-- Date - Store -->
                                 </div>
                             </div>
                             
                             <!-- Row 2: Prediction (Full Width) -->
-                            <div id="dd-prediction-\` + appId + \`" style="grid-column: 1 / -1; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #67c1f5; display: none;">
+                            <div id="dd-prediction-${appId}" style="grid-column: 1 / -1; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #67c1f5; display: none;">
                                 <!-- Prediction content injected here -->
                             </div>
                         </div>
 
                         <!-- Graph Container -->
-                        <div id="Deckdeals-content-\` + appId + \`" style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 2px; margin-bottom: 10px;">
+                        <div id="Deckdeals-content-${appId}" style="background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 2px; margin-bottom: 10px;">
                             <div class="Deckdeals-graph-container" style="position: relative; height: 60px; width: 100%; margin: 0 0 10px 0; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                                <div id="dd-graph-\` + appId + \`" style="width: 100%; height: 100%; display: flex; align-items: flex-end;">
+                                <div id="dd-graph-${appId}" style="width: 100%; height: 100%; display: flex; align-items: flex-end;">
                                     <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">${t("store.loadingGraph")}</div>
                                 </div>
                                 <!-- Overlay for dots -->
-                                <div id="dd-graph-overlay-\` + appId + \`" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
+                                <div id="dd-graph-overlay-${appId}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;"></div>
                             </div>
 
                              <!-- Dedicated Hover Info -->
-                            <div id="dd-hover-info-\` + appId + \`" style="height: 20px; font-size: 12px; color: #8f98a0; text-align: center; opacity: 1; transition: opacity 0.2s;">
+                            <div id="dd-hover-info-${appId}" style="height: 20px; font-size: 12px; color: #8f98a0; text-align: center; opacity: 1; transition: opacity 0.2s;">
                                 ${t("store.graphHoverPrompt")}
                             </div>
                             
@@ -145,11 +146,11 @@ export const injectStore = (serverApi: ServerAPI) => {
                             </div>
                         </div>
                         
-                        <div class="Deckdeals-actions" id="dd-actions-\` + appId + \`" style="display: ${displayStyle}; gap: 10px;">
+                        <div class="Deckdeals-actions" id="dd-actions-${appId}" style="display: ${displayStyle}; gap: 10px;">
                             <a class="btn_blue_steamui btn_medium" href="${steamDBUrl}" target="_blank" style="padding: 6px 12px; font-size: 13px; flex: 1; text-align: center; text-decoration: none; color: white; border-radius: 2px;">
                                 <span>SteamDB</span>
                             </a>
-                            <a class="btn_blue_steamui btn_medium" href="#" id="dd-itad-link-\` + appId + \`" target="_blank" style="padding: 6px 12px; font-size: 13px; flex: 1; text-align: center; text-decoration: none; color: white; border-radius: 2px;">
+                            <a class="btn_blue_steamui btn_medium" href="#" id="dd-itad-link-${appId}" target="_blank" style="padding: 6px 12px; font-size: 13px; flex: 1; text-align: center; text-decoration: none; color: white; border-radius: 2px;">
                                 <span>IsThereAnyDeal</span>
                             </a>
                         </div>
@@ -179,6 +180,7 @@ export const injectStore = (serverApi: ServerAPI) => {
     // Helper to update the box with price data
     const updateDeckDealsBox = async (result: { data: any, error?: string, debug?: any } | null, appId: string) => {
         if (!storeWebSocket || storeWebSocket.readyState !== WebSocket.OPEN) {
+            console.error('[Deckdeals] WebSocket not ready');
             return;
         }
 
@@ -190,20 +192,74 @@ export const injectStore = (serverApi: ServerAPI) => {
         const errorJson = JSON.stringify(error);
         const dateFormat = await SETTINGS.load(Setting.DATE_FORMAT) || "default";
         const showQuickLinks = await SETTINGS.load(Setting.SHOW_QUICK_LINKS);
-        // Default to true if undefined
         const showQuickLinksBool = showQuickLinks !== undefined ? showQuickLinks : true;
         const historyRange = await SETTINGS.load(Setting.HISTORY_RANGE) || "1y";
+        const country = await SETTINGS.load(Setting.COUNTRY) || "US";
+
+        // Determine target currency for conversion (user's native currency)
+        const getNativeCurrency = (cc: string) => {
+            const NativeMapping: Record<string, string> = {
+                "NO": "NOK", "CH": "CHF", "DK": "DKK", "FI": "EUR", "SE": "SEK",
+                "HK": "HKD", "MY": "MYR", "SG": "SGD", "TH": "THB", "VN": "VND",
+                "AR": "ARS", "CL": "CLP", "CO": "COP", "PE": "PEN", "IL": "ILS",
+                "SA": "SAR", "AE": "AED", "ZA": "ZAR", "TR": "TRY", "RU": "RUB",
+                "MX": "MXN", "UA": "UAH", "CZ": "CZK", "HU": "HUF", "RO": "RON",
+                "US": "USD", "CA": "CAD", "GB": "GBP", "PL": "PLN", "JP": "JPY",
+                "KR": "KRW", "CN": "CNY", "TW": "TWD", "IN": "INR", "ID": "IDR",
+                "PH": "PHP", "BR": "BRL", "AU": "AUD", "NZ": "NZD",
+                "DE": "EUR", "FR": "EUR", "ES": "EUR", "IT": "EUR", "NL": "EUR",
+                "AT": "EUR", "BE": "EUR", "PT": "EUR", "IE": "EUR"
+            };
+            return NativeMapping[cc] || "USD";
+        };
+
+        const targetCurrency = getNativeCurrency(country);
+
+        // Fetch exchange rates for conversion (with error handling)
+        let exchangeRates = null;
+        try {
+            exchangeRates = await exchangeRateService.getExchangeRates(targetCurrency);
+        } catch (error) {
+            console.error("[Deckdeals] Failed to fetch exchange rates:", error);
+            // Continue without exchange rates - prices will be shown in original currencies
+        }
+        const exchangeRatesJson = JSON.stringify(exchangeRates);
 
         const js = `
             (function() {
                 try {
                 var data = ${dataJson};
                 var error = ${errorJson};
-                var error = ${errorJson};
                 var dateFormat = "${dateFormat}";
                 var showQuickLinks = ${showQuickLinksBool};
                 var historyRange = "${historyRange}";
                 var appId = "${appId}";
+                var targetCurrency = "${targetCurrency}";
+                var exchangeRates = ${exchangeRatesJson};
+                
+                // Currency conversion helper
+                var convertCurrency = function(amount, fromCurrency, toCurrency) {
+                    if (!exchangeRates || !exchangeRates.rates) return amount;
+                    if (fromCurrency === toCurrency) return amount;
+                    
+                    // If base currency matches target, direct conversion
+                    if (exchangeRates.base === toCurrency && exchangeRates.rates[fromCurrency]) {
+                        return amount / exchangeRates.rates[fromCurrency];
+                    }
+                    
+                    // If base currency matches source, direct conversion
+                    if (exchangeRates.base === fromCurrency && exchangeRates.rates[toCurrency]) {
+                        return amount * exchangeRates.rates[toCurrency];
+                    }
+                    
+                    // Cross-currency conversion through base
+                    if (exchangeRates.rates[fromCurrency] && exchangeRates.rates[toCurrency]) {
+                        var inBase = amount / exchangeRates.rates[fromCurrency];
+                        return inBase * exchangeRates.rates[toCurrency];
+                    }
+                    
+                    return amount; // Fallback if conversion not possible
+                };
                 
                 var currentEl = document.getElementById('dd-current-' + appId);
                 var currentStoreEl = document.getElementById('dd-current-store-' + appId);
@@ -289,11 +345,28 @@ export const injectStore = (serverApi: ServerAPI) => {
                 var startTime = startDate.getTime();
 
                 var fullHistory = data.history || [];
-                var filteredHistory = fullHistory.filter(function(entry) {
+                
+                // Convert all prices to target currency for fair comparison
+                var convertedHistory = fullHistory.map(function(entry) {
+                    var convertedAmount = convertCurrency(entry.amount, entry.currency || 'USD', targetCurrency);
+                    return {
+                        amount: convertedAmount, // Converted for comparison
+                        originalAmount: entry.amount, // Original for display
+                        originalCurrency: entry.currency || 'USD',
+                        date: entry.date,
+                        store: entry.store,
+                        storeId: entry.storeId || 0
+                    };
+                });
+                var steamHistory = convertedHistory.filter(function(entry) {
+                    return entry.storeId === 61 || entry.store === "Steam";
+                });
+                
+                var filteredHistory = convertedHistory.filter(function(entry) {
                     return new Date(entry.date).getTime() >= startTime;
                 });
                 
-                // Recalculate Lowest for the filtered period
+                // Recalculate Lowest for the filtered period (using converted prices for comparison)
                 var lowestInYear = null;
                 var lowestPriceInYear = Infinity;
 
@@ -305,20 +378,26 @@ export const injectStore = (serverApi: ServerAPI) => {
                 });
                 
                 var displayLowest = lowestInYear ? {
-                    amount: lowestPriceInYear,
-                    currency: data.lowest.currency, // Currency assumed constant
+                    amount: lowestPriceInYear, // Converted amount for comparison
+                    currency: targetCurrency,
                     date: lowestInYear.date,
-                    store: lowestInYear.store
+                    store: lowestInYear.store,
+                    originalAmount: lowestInYear.originalAmount, // Original for display
+                    originalCurrency: lowestInYear.originalCurrency
                 } : null;
                 
                 // 1. Update Current Price and Lowest Price Info (Moved up)
                 var currentAmount = 0;
-                var currentStore = "Steam"; // Default
-                
-                if (fullHistory.length > 0) {
-                    var latestEntry = fullHistory[fullHistory.length - 1];
-                    currentAmount = latestEntry.amount;
-                    if (latestEntry.store) currentStore = latestEntry.store;
+                var currentOriginalAmount = 0;
+                var currentOriginalCurrency = targetCurrency;
+                var currentStore = "Steam";
+                var currentEntry = null;
+
+                if (steamHistory.length > 0) {
+                    currentEntry = steamHistory[steamHistory.length - 1];
+                    currentAmount = currentEntry.amount; // Converted for comparison
+                    currentOriginalAmount = currentEntry.originalAmount; // Original for display
+                    currentOriginalCurrency = currentEntry.originalCurrency;
                 }
                 // --- DATA FILTERING END ---
 
@@ -447,7 +526,7 @@ export const injectStore = (serverApi: ServerAPI) => {
                     };
                 };
 
-                var prediction = predictNextSale(fullHistory, currentAmount);
+                var prediction = predictNextSale(convertedHistory, currentAmount);
                 if (prediction && predictionEl) {
                      var pDateStr = formatDate(prediction.date);
                      
@@ -469,7 +548,7 @@ export const injectStore = (serverApi: ServerAPI) => {
 
 
                 // --- FREE GAME HANDLING ---
-                if (currentAmount === 0 && fullHistory.length > 0) {
+                if (currentEntry && currentAmount === 0 && convertedHistory.length > 0) {
                     // Mute normal elements
                     var contentDiv = document.getElementById('Deckdeals-content-' + appId);
                     var infoDiv = document.querySelector('#dbpc-deckdeals-box-' + appId + ' .Deckdeals-info');
@@ -482,16 +561,18 @@ export const injectStore = (serverApi: ServerAPI) => {
                     }
                     if (predictionEl) predictionEl.style.display = 'none';
                 } else {
-                    // Update Current Price Text
-                    if (currentEl && fullHistory.length > 0) {
-                        currentEl.textContent = currentAmount.toFixed(2) + ' ' + data.lowest.currency;
+                    // Update Current Price Text (show ORIGINAL currency)
+                    if (currentEl && currentEntry) {
+                        currentEl.textContent = currentOriginalAmount.toFixed(2) + ' ' + currentOriginalCurrency;
+                    } else if (currentEl) {
+                        currentEl.innerHTML = '<span style="color: #8f98a0;">${t("store.noDataRecent")}</span>';
                     }
                     
                     if (currentStoreEl) {
-                        currentStoreEl.textContent = currentStore;
+                        currentStoreEl.textContent = currentEntry ? currentStore : "";
                     }
     
-                    // Calculate Difference
+                    // Calculate Difference (using converted amounts for accurate comparison)
                     var diffText = '';
                     var diffColor = '#c6d4df';
                     
@@ -509,7 +590,6 @@ export const injectStore = (serverApi: ServerAPI) => {
                     }
 
                     // Update Lowest Price Label (Line 0: Label + Diff)
-                    // Find the label element for Lowest Price
                     var lowestLabelEl = document.querySelector('#dbpc-deckdeals-box-' + appId + ' .Deckdeals-info > div:nth-child(2) > div:first-child');
                     if (lowestLabelEl) {
                          var labelHtml = '${t("store.lowestPrice")}';
@@ -523,11 +603,11 @@ export const injectStore = (serverApi: ServerAPI) => {
                          lowestLabelEl.innerHTML = labelHtml;
                     }
 
-                    // Update Lowest Price (Line 1: Price only)
+                    // Update Lowest Price (show ORIGINAL currency)
                     if (lowestEl) {
                         try {
                             if (displayLowest) {
-                                lowestEl.innerHTML = displayLowest.amount.toFixed(2) + ' ' + displayLowest.currency;
+                                lowestEl.innerHTML = displayLowest.originalAmount.toFixed(2) + ' ' + displayLowest.originalCurrency;
                             } else {
                                 lowestEl.innerHTML = '<span style="color: #8f98a0;">${t("store.noDataRecent")}</span>';
                             }
@@ -570,7 +650,6 @@ export const injectStore = (serverApi: ServerAPI) => {
                             
                             var minTime = new Date(pts[0].date).getTime();
                             var maxTime = new Date().getTime(); // Now
-                            
                             var pointsStr = '';
                             
                             // Generate Stepped Path
@@ -613,7 +692,7 @@ export const injectStore = (serverApi: ServerAPI) => {
                             
                             graphEl.innerHTML = svg;
 
-                            // Generate Interactive HTML Dots
+                            // Generate Interactive HTML Dots with original prices displayed
                              pts.forEach(function(pt, i) {
                                 var t = new Date(pt.date).getTime();
                                 var x = ((t - minTime) / (maxTime - minTime)) * 100;
@@ -623,7 +702,8 @@ export const injectStore = (serverApi: ServerAPI) => {
                                 var topPercent = ((50 - (val * 40) - 5) / 50) * 100;
                                 
                                 var dateStr = formatDate(pt.date);
-                                var priceStr = pt.amount.toFixed(2) + ' ' + data.lowest.currency;
+                                // Show ORIGINAL currency in tooltip
+                                var priceStr = pt.originalAmount.toFixed(2) + ' ' + pt.originalCurrency;
                                 var storeStr = pt.store || "Steam";
 
                                 var dot = document.createElement('div');
@@ -710,17 +790,22 @@ export const injectStore = (serverApi: ServerAPI) => {
                 }
 
                 } catch(err) {
+                    console.error('[Deckdeals] ERROR in browser update:', err);
                     var el = document.getElementById('dd-graph-' + "${appId}");
                     if (el) el.innerHTML = '<div style="width:100%; height: 100%; display:flex; align-items:center; justify-content:center; color:red; font-size:10px; text-align: center;">' + err + '</div>';
                 }
             })();
         `;
 
-        storeWebSocket.send(JSON.stringify({
-            id: ++wsMessageId,
-            method: "Runtime.evaluate",
-            params: { expression: js }
-        }));
+        try {
+            storeWebSocket.send(JSON.stringify({
+                id: ++wsMessageId,
+                method: "Runtime.evaluate",
+                params: { expression: js }
+            }));
+        } catch (error) {
+            console.error('[Deckdeals] Failed to send WebSocket message:', error);
+        }
     }
 
     // Disconnect/teardown helper
@@ -770,10 +855,13 @@ export const injectStore = (serverApi: ServerAPI) => {
 
             // Small delay to let the store page finish rendering
             setTimeout(async () => {
-                injectDeckDealsBox(appId);
-                const data = await priceService.getLowestPrice(appId);
-                // Standard Store Page Update
-                updateDeckDealsBox(data ?? null, appId);
+                try {
+                    injectDeckDealsBox(appId);
+                    const data = await priceService.getLowestPrice(appId);
+                    await updateDeckDealsBox(data ?? null, appId);
+                } catch (error: any) {
+                    console.error('[Deckdeals] Error in update flow:', error);
+                }
             }, 1500);
         }
     };

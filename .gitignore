@@ -57,3 +57,5 @@ cli/*
 cli/decky
 src/utils/Secrets.ts
 *.zip
+internal docs/
+.vscode/

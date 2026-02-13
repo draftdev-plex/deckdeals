@@ -1,13 +1,13 @@
 {
   "name": "Deckdeals",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Price history and deal tracking for Steam Deck store pages, powered by IsThereAnyDeal.",
   "scripts": {
     "build": "shx rm -rf dist && rollup -c",
     "watch": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "./deploy.sh",
-    "archive": "npm run build && rm -rf Deckdeals Deckdeals-*.zip && mkdir -p Deckdeals/dist && cp dist/index.js Deckdeals/dist/ && cp main.py settings.py plugin.json package.json README.md LICENSE Deckdeals/ && zip -r Deckdeals-1.0.0.zip Deckdeals && rm -rf Deckdeals"
+    "archive": "pnpm run build && rm -rf Deckdeals Deckdeals-*.zip && mkdir -p Deckdeals/dist && cp dist/index.js Deckdeals/dist/ && cp main.py settings.py plugin.json package.json README.md LICENSE Deckdeals/ && zip -r Deckdeals-1.1.0.zip Deckdeals -x \"*.DS_Store\" -x \"__MACOSX/*\" && rm -rf Deckdeals"
   },
   "repository": {
     "type": "git",

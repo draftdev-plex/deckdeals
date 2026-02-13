@@ -8,7 +8,7 @@
 **Track prices, spot deals, and save money directly from the Steam Store.**
 Powered by IsThereAnyDeal.
 
-  <a href="https://github.com/draftdev-plex/deckdeals/releases/download/v1.0.0/Deckdeals-1.0.0.zip">
+  <a href="https://github.com/draftdev-plex/deckdeals/releases/download/v1.1.0/Deckdeals-1.1.0.zip">
     <img src="https://img.shields.io/badge/Download-.zip_(BETA)-blue?style=for-the-badge&logo=github&logoColor=white" alt="Download .zip" />
   </a>
 </p>
@@ -24,7 +24,7 @@ Powered by IsThereAnyDeal.
 
 You can install the plugin manually via the ZIP file:
 
-1. Download the [Deckdeals-1.0.0.zip](https://github.com/draftdev-plex/deckdeals/releases/download/v1.0.0/Deckdeals-1.0.0.zip) (or fork the repo and zip it yourself).
+1. Download the [Deckdeals-1.1.0.zip](https://github.com/draftdev-plex/deckdeals/releases/download/v1.1.0/Deckdeals-1.1.0.zip) (or fork the repo and zip it yourself).
 2. On your Steam Deck, go to **Decky Options**.
 3. Enable **Developer Mode** (via the General tab).
 4. Go to the **Developer Tab**.
